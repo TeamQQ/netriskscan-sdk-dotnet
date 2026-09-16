@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/AspNetCoreExample/AspNetCoreExample.csproj" />
+    <Project Path="samples/ConsoleExample/ConsoleExample.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/NetRiskScan/NetRiskScan.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NetRiskScan.Tests/NetRiskScan.Tests.csproj" />
+  </Folder>
+</Solution>

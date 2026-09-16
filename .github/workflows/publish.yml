@@ -1,0 +1,63 @@
+name: Publish to NuGet
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - run: dotnet restore
+      - run: dotnet build --configuration Release --no-restore
+      - run: dotnet test --configuration Release --no-build
+      - run: dotnet format --verify-no-changes --no-restore
+      - run: dotnet pack src/NetRiskScan/NetRiskScan.csproj --configuration Release --no-build --output ./artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+  # Uses NuGet.org Trusted Publishing (OIDC) -- no long-lived API key is stored as a repository secret.
+  # Before the first release, a maintainer must register this repository/workflow as a trusted publisher
+  # for the `NetRiskScan` package at https://www.nuget.org/account/trustedpublishing (one-time manual
+  # step, since the package does not exist on NuGet.org yet).
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts
+
+      - name: NuGet login (OIDC -- short-lived push key)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: netriskscan
+
+      - name: Push to NuGet.org
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --skip-duplicate

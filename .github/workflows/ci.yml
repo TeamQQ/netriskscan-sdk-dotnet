@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # Both target frameworks' runtimes must be installed to actually run the multi-targeted test
+      # suite (net8.0 and net10.0) -- the .NET 10 SDK alone can *build* net8.0 via the restored
+      # targeting pack, but running net8.0 tests needs the net8.0 runtime present too.
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # Runs against every TargetFramework declared in NetRiskScan.Tests.csproj (net8.0 and net10.0).
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      - name: Format check
+        run: dotnet format --verify-no-changes --no-restore
+
+      - name: Pack
+        run: dotnet pack src/NetRiskScan/NetRiskScan.csproj --configuration Release --no-build --output ./artifacts
