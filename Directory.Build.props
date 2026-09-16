@@ -3,6 +3,10 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <!-- A nullable-annotation mistake on a tri-state flag or the risk index is exactly the class of bug
+         this SDK exists to avoid (see README "Nullable and tri-state semantics"), so it fails the
+         build here, matching the main NetRiskScan repository's own Directory.Build.props. -->
+    <WarningsAsErrors>Nullable</WarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
     <InvariantGlobalization>true</InvariantGlobalization>
