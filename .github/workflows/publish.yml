@@ -24,7 +24,15 @@ jobs:
       - run: dotnet build --configuration Release --no-restore
       - run: dotnet test --configuration Release --no-build
       - run: dotnet format --verify-no-changes --no-restore
-      - run: dotnet pack src/NetRiskScan/NetRiskScan.csproj --configuration Release --no-build --output ./artifacts
+      - name: Pack
+        shell: bash
+        run: |
+          package_version="${GITHUB_REF_NAME#v}"
+          dotnet pack src/NetRiskScan/NetRiskScan.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:PackageVersion="$package_version"
 
       - uses: actions/upload-artifact@v4
         with:
