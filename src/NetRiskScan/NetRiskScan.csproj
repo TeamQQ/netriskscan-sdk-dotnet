@@ -14,9 +14,9 @@
          in the project report for how these were chosen. -->
     <PackageId>NetRiskScan</PackageId>
     <Version>0.1.0</Version>
-    <Title>NetRiskScan .NET SDK</Title>
-    <Description>Official .NET SDK for IP risk, IP reputation, proxy, VPN, Tor and network intelligence using the NetRiskScan API. Includes ASP.NET Core dependency injection support.</Description>
-    <PackageTags>netriskscan;ip-risk;ip-reputation;ip-intelligence;ip-lookup;ip-security;proxy-detection;vpn-detection;tor-detection;anonymous-ip;datacenter-detection;network-intelligence;network-security;threat-intelligence;fraud-detection;abuse-detection;bot-detection;cybersecurity;risk-scoring;asn;geoip;ip-geolocation;api-client;dotnet;csharp;sdk;aspnetcore</PackageTags>
+    <Title>NetRiskScan .NET / C# SDK</Title>
+    <Description>Official .NET and C# SDK for IP risk, IP reputation, proxy, VPN, Tor and network intelligence using the NetRiskScan API. Includes ASP.NET Core dependency injection support.</Description>
+    <PackageTags>netriskscan;ip-risk;ip-reputation;ip-intelligence;ip-lookup;ip-security;proxy-detection;vpn-detection;tor-detection;tor-exit-node;anonymous-ip;datacenter-detection;hosting-detection;residential-ip;network-intelligence;network-security;threat-intelligence;fraud-detection;abuse-detection;bot-detection;cybersecurity;risk-scoring;asn;geoip;ip-geolocation;api-client;dotnet;csharp;sdk;aspnetcore</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

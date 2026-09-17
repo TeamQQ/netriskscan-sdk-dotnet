@@ -3,7 +3,7 @@
 [![NuGet version](https://img.shields.io/nuget/v/NetRiskScan.svg)](https://www.nuget.org/packages/NetRiskScan/)
 [![CI](https://github.com/TeamQQ/netriskscan-sdk-dotnet/actions/workflows/ci.yml/badge.svg)](https://github.com/TeamQQ/netriskscan-sdk-dotnet/actions/workflows/ci.yml)
 
-Official .NET SDK for the [NetRiskScan](https://www.netriskscan.com/) IP Risk & Network Intelligence API: IP reputation, proxy/VPN/Tor detection, datacenter and search-crawler identification, and network intelligence, with first-class ASP.NET Core dependency injection support.
+Official .NET and C# SDK for the [NetRiskScan](https://www.netriskscan.com/) IP Risk & Network Intelligence API: IP reputation, proxy/VPN/Tor detection, datacenter and search-crawler identification, and network intelligence, with first-class ASP.NET Core dependency injection support.
 
 ```bash
 dotnet add package NetRiskScan
@@ -20,6 +20,17 @@ Console.WriteLine(result.Risk.Index); // 0-100, higher = cleaner. Example output
 Console.WriteLine(result.Risk.Band);  // "excellent" | "good" | "fair" | "poor" | "high_risk" | "unknown"
 ```
 
+## .NET IP Risk & Reputation SDK
+
+NetRiskScan is a .NET and C# SDK for developers who need to:
+
+- Check IP reputation and risk scores from C# and .NET applications
+- Detect proxy, VPN, and Tor exit-node traffic in ASP.NET Core
+- Identify datacenter, hosting, and residential IP addresses
+- Distinguish verified search-engine crawlers from generic bot/scanner activity
+- Add network intelligence (ASN, organization, connection type, geolocation) to a .NET backend
+- Feed IP reputation and risk signals into fraud-prevention and abuse-detection pipelines
+
 ## Table of contents
 
 - [Installation](#installation)
@@ -34,6 +45,7 @@ Console.WriteLine(result.Risk.Band);  // "excellent" | "good" | "fair" | "poor" 
 - [Configuration](#configuration)
 - [Nullable and tri-state semantics](#nullable-and-tri-state-semantics)
 - [Use cases](#use-cases)
+- [FAQ](#faq)
 - [API documentation](#api-documentation)
 - [NetRiskScan ecosystem](#netriskscan-ecosystem)
 - [Samples](#samples)
@@ -316,6 +328,28 @@ Every model property has full nullable-reference-type annotations (`<Nullable>en
 - Inspect datacenter and hosting traffic separately from residential networks
 - Add network intelligence (ASN, organization, connection type) to abuse-prevention systems in an ASP.NET Core backend or a Worker Service
 - Gate CI/CD, infrastructure, or admission checks on a minimum risk index
+
+## FAQ
+
+### How do I check IP reputation in C#?
+
+Call `client.GetIpRiskAsync("8.8.8.8")` on `NetRiskScanClient` (or the injected `INetRiskScanClient`) to retrieve the IP risk score, reputation signals, network data, and detection flags in one request. See [IP risk lookup](#ip-risk-lookup).
+
+### How do I detect proxy or VPN users in ASP.NET Core?
+
+Register the client with `builder.Services.AddNetRiskScan(...)`, inject `INetRiskScanClient`, and inspect `result.Flags.Proxy` / `result.Flags.Vpn` for the requested IP address. See [ASP.NET Core dependency injection](#aspnet-core-dependency-injection).
+
+### Can the .NET SDK detect Tor exit nodes?
+
+Yes. `result.Flags.Tor` reports Tor *exit* node status specifically, and `result.Tor` carries relay details when the address is an actual Tor relay. See [IP risk lookup](#ip-risk-lookup).
+
+### Can I tell datacenter, hosting, and residential IPs apart?
+
+Yes. `result.Network.Type` reports values including `residential`, `mobile`, `hosting`, `datacenter`, and `public_infrastructure`, independent of the `Flags.Datacenter` detection flag.
+
+### Does NetRiskScan support anonymous API access?
+
+Yes. `GetIpRiskAsync` works without an API key, metered by a daily per-source-IP allowance set by the server. Authenticated requests via an API key are also supported. See [Anonymous usage](#anonymous-usage) and [Authentication](#authentication).
 
 ## API documentation
 
