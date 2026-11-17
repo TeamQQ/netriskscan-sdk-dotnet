@@ -172,6 +172,25 @@ public sealed record NetworkInfo
     /// <summary>Canonical operator of the network or ASN, e.g. <c>Google LLC</c>.</summary>
     [JsonPropertyName("organization")]
     public string? Organization { get; init; }
+
+    /// <summary>
+    /// Verified registrable domain of the network operator, e.g. <c>google.com</c> -- the operator's
+    /// own primary domain, not a website hosted on the address, not a cloud customer's domain, and
+    /// never derived from a PTR/reverse-DNS hostname. <see langword="null"/> when no trustworthy
+    /// operator-domain mapping exists. Added in API schema 1.6.0; an older server omits the key, which
+    /// also reads as <see langword="null"/>.
+    /// </summary>
+    [JsonPropertyName("domain")]
+    public string? Domain { get; init; }
+
+    /// <summary>
+    /// Canonical IPv4/IPv6 CIDR range containing the queried IP address, e.g. <c>8.8.8.0/24</c> or
+    /// <c>2001:4860:4860::/48</c>. <see langword="null"/> when no trustworthy containing network
+    /// prefix is available. Added in API schema 1.6.0; an older server omits the key, which also reads
+    /// as <see langword="null"/>.
+    /// </summary>
+    [JsonPropertyName("range")]
+    public string? Range { get; init; }
 }
 
 /// <summary>
@@ -283,6 +302,47 @@ public sealed record LocationInfo
     /// <summary>IANA time-zone name, e.g. <c>America/Los_Angeles</c>.</summary>
     [JsonPropertyName("timeZone")]
     public string? TimeZone { get; init; }
+
+    /// <summary>
+    /// Continent code following the published API's UN geographic scheme, e.g. <c>NA</c>.
+    /// <see langword="null"/> when unavailable. Added in API schema 1.6.0; an older server omits the
+    /// key, which also reads as <see langword="null"/>.
+    /// </summary>
+    [JsonPropertyName("continentCode")]
+    public string? ContinentCode { get; init; }
+
+    /// <summary>
+    /// English continent name supplied by the server, e.g. <c>North America</c>.
+    /// <see langword="null"/> when unavailable. Added in API schema 1.6.0.
+    /// </summary>
+    [JsonPropertyName("continent")]
+    public string? Continent { get; init; }
+
+    /// <summary>
+    /// Postal code as supplied by the underlying location source, e.g. <c>94043</c>. Kept as a string
+    /// so leading zeros survive (<c>"00501"</c> is not <c>501</c>). <see langword="null"/> when
+    /// unavailable. Added in API schema 1.6.0.
+    /// </summary>
+    [JsonPropertyName("postalCode")]
+    public string? PostalCode { get; init; }
+
+    /// <summary>
+    /// Approximate network latitude, not device GPS -- the geolocation source's estimate of where the
+    /// network is registered/routed, city-level at best. Valid range: -90 to 90. Zero is a valid
+    /// coordinate, distinct from <see langword="null"/> (unknown). Published as a pair with
+    /// <see cref="Longitude"/>: both null together when unknown, e.g. for an anycast service with no
+    /// verifiable node location. Added in API schema 1.6.0.
+    /// </summary>
+    [JsonPropertyName("latitude")]
+    public double? Latitude { get; init; }
+
+    /// <summary>
+    /// Approximate network longitude, not device GPS. Valid range: -180 to 180. Zero is a valid
+    /// coordinate, distinct from <see langword="null"/> (unknown). Always null together with
+    /// <see cref="Latitude"/> when the pair is unknown. Added in API schema 1.6.0.
+    /// </summary>
+    [JsonPropertyName("longitude")]
+    public double? Longitude { get; init; }
 }
 
 /// <summary>
