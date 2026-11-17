@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-11-17
 
 Compatibility feature release: full support for API schema **1.6.0** (`ip-intelligence-completeness-v1`).
 Purely additive -- no endpoint, authentication, retry, error-handling, or scoring behavior changes.
