@@ -13,7 +13,7 @@
     <!-- NuGet package identity and discovery metadata. See README "NuGet Discovery Optimization"
          in the project report for how these were chosen. -->
     <PackageId>NetRiskScan</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Title>NetRiskScan .NET / C# SDK</Title>
     <Description>Official .NET and C# SDK for IP risk, IP reputation, proxy, VPN, Tor and network intelligence using the NetRiskScan API. Includes ASP.NET Core dependency injection support.</Description>
     <PackageTags>netriskscan;ip-risk;ip-reputation;ip-intelligence;ip-lookup;ip-security;proxy-detection;vpn-detection;tor-detection;tor-exit-node;anonymous-ip;datacenter-detection;hosting-detection;residential-ip;network-intelligence;network-security;threat-intelligence;fraud-detection;abuse-detection;bot-detection;cybersecurity;risk-scoring;asn;geoip;ip-geolocation;api-client;dotnet;csharp;sdk;aspnetcore</PackageTags>
@@ -32,6 +32,12 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lets the test suite serialize through the real source-generated NetRiskScanJsonContext
+         (serialization regression tests), not a reflection-based stand-in. -->
+    <InternalsVisibleTo Include="NetRiskScan.Tests" />
   </ItemGroup>
 
 </Project>

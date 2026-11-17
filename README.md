@@ -114,6 +114,8 @@ Keep real keys out of source control -- see [Security](#security).
 
 ## IP risk lookup
 
+The result models track API schema **1.6.0**. Against an older server the seven schema-1.6.0 properties simply read as `null` -- no version negotiation, no breaking change.
+
 ```csharp
 var result = await client.GetIpRiskAsync("8.8.8.8");
 
@@ -126,6 +128,8 @@ result.Network.Type;           // "residential" | "mobile" | "hosting" | "datace
 result.Network.ConnectionType; // "direct" | "vpn" | "proxy" | "tor" | ...
 result.Network.Asn;            // e.g. "AS15169"
 result.Network.Organization;   // e.g. "Google LLC"
+result.Network.Domain;         // string? -- operator's verified primary domain, e.g. "google.com" (schema 1.6.0)
+result.Network.Range;          // string? -- CIDR containing the queried IP, e.g. "8.8.8.0/24" (schema 1.6.0)
 
 result.Flags.Proxy;             // bool? -- see "Nullable and tri-state semantics" below
 result.Flags.ProxyType;         // populated only when Flags.Proxy is true
@@ -138,8 +142,42 @@ result.Flags.SearchCrawler;     // bool? -- verified search-engine crawler ident
 result.Flags.SearchCrawlerName; // e.g. "Google", populated only when SearchCrawler is true
 
 result.Location; // LocationInfo? -- network-level geolocation, not device GPS
+result.Location?.ContinentCode; // string? -- UN geoscheme continent code, e.g. "NA" (schema 1.6.0)
+result.Location?.Continent;     // string? -- English continent name, e.g. "North America" (schema 1.6.0)
+result.Location?.PostalCode;    // string? -- as the source reports it; leading zeros kept (schema 1.6.0)
+result.Location?.Latitude;      // double? -- approximate network latitude; 0 is a valid value (schema 1.6.0)
+result.Location?.Longitude;     // double? -- approximate network longitude; 0 is a valid value (schema 1.6.0)
 result.Tor;       // TorInfo? -- present only when the address is an actual Tor relay
 ```
+
+### Network operator domain and range (schema 1.6.0)
+
+```csharp
+var result = await client.GetIpRiskAsync("8.8.8.8");
+
+Console.WriteLine(result.Network.Domain); // e.g. "google.com"
+Console.WriteLine(result.Network.Range);  // e.g. "8.8.8.0/24"
+
+if (result.Location is { } location)
+{
+    Console.WriteLine(location.ContinentCode); // e.g. "NA"
+    Console.WriteLine(location.Continent);     // e.g. "North America"
+    Console.WriteLine(location.PostalCode);    // e.g. "94043" -- a string, leading zeros preserved
+
+    if (location.Latitude is double lat &&
+        location.Longitude is double lon)
+    {
+        Console.WriteLine($"{lat}, {lon}");
+    }
+}
+```
+
+- **`Network.Domain` is the network operator's primary domain** -- the organization that operates the network (e.g. `google.com`, `amazon.com`), not a website hosted on the address, not a cloud customer's domain, and never a guess from reverse DNS (PTR). A shared cloud ASN publishes the cloud operator's domain. `null` means no trustworthy operator-domain mapping exists; coverage is partial by design.
+- **`Network.Range` is the canonical CIDR that contains the queried address** -- IPv4 (`8.8.8.0/24`) or IPv6 (`2001:4860:4860::/48`). It is the allocation/route prefix the answering source stated; `null` when no source stated a usable, containing range. The SDK never computes or "fixes" a range client-side.
+- **Coordinates are an approximate network estimate, not device GPS.** `Location.Latitude`/`Longitude` describe where the network is registered/routed -- city-level at best, often the operator's registration address. Never present them as where a person is.
+- **Anycast services (public DNS, CDN edges) may have no trustworthy coordinates**: the pair is `null` together, and the SDK never fills it in. The server publishes coordinates as a pair -- both present or both `null`.
+- **`null` is unknown, not zero.** A `null` coordinate means "not known"; `0` is a real, valid coordinate. The same rule applies to every new field: an older server that omits the keys reads as `null`, never as `""` or `0`.
+- **`Location.PostalCode` stays a string** so leading zeros survive (`"00501"` is not `501`).
 
 ### The index is a cleanliness score, not a threat score
 
@@ -316,7 +354,7 @@ Pass your own `HttpClient` (see [ASP.NET Core dependency injection](#aspnet-core
 This SDK never computes, derives, or overrides a risk score, band, or detection flag -- every value on the result models is exactly what the server returned. Two null-handling rules follow from that and are worth stating explicitly:
 
 - **`null` is not `false`.** Every detection flag (`Proxy`, `Vpn`, `Tor`, `Datacenter`, `Scanner`, `Abuse`, `SearchCrawler`) is `bool?`: `true` (detected), `false` (checked, confirmed not detected), or `null` (unknown / not evaluated this round) -- three distinct outcomes. Treating `null` as `false` turns "we don't know" into "we checked and it's clean," a different and stronger claim than the data supports.
-- **`null` is not `0`.** `Risk.Index` is `int?`. A `null` index means the address could not be scored at all; `0` is a real, valid, maximally-risky score. The two are never conflated.
+- **`null` is not `0`.** `Risk.Index` is `int?`. A `null` index means the address could not be scored at all; `0` is a real, valid, maximally-risky score. The two are never conflated. The same rule holds for the schema-1.6.0 coordinates: `Location.Latitude`/`Longitude` are `double?`, where `null` means unknown (e.g. an anycast service with no verifiable node location) and `0` is a genuine coordinate value.
 
 Every model property has full nullable-reference-type annotations (`<Nullable>enable</Nullable>`), so the compiler -- not just the documentation -- tells you where a `null` check is required.
 

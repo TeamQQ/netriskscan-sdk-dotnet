@@ -7,6 +7,7 @@
     <Project Path="src/NetRiskScan/NetRiskScan.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/NetRiskScan.AotSmokeTest/NetRiskScan.AotSmokeTest.csproj" />
     <Project Path="tests/NetRiskScan.Tests/NetRiskScan.Tests.csproj" />
   </Folder>
 </Solution>
